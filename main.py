@@ -60,7 +60,7 @@ def check_password(password: Optional[str] = None, password_hash: Optional[str] 
 
 
 # 1.4
-@app.post("/register")
+@app.post("/register", status_code=201)
 def register(patient: Patient):
     register_date = datetime.now().strftime("%Y-%m-%d")
     vaccination_date = datetime.strptime(register_date, "%Y-%m-%d") + timedelta(
