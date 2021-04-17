@@ -23,6 +23,14 @@ class Patient(BaseModel):
     surname: str
 
 
+def letters_len(string: str):
+    n = 0
+    for l in string.lower():
+        if (l >= 'a' and l <= 'z') or l in 'ąęćłńóśźż':
+            n += 1
+    return n
+
+
 @app.get("/counter")
 def counter():
     app.counter += 1
@@ -73,7 +81,7 @@ def register(patient: Patient):
     elif not patient.name and not patient.surname:
         days = 0
 
-    vaccination_date = datetime.strptime(register_date, "%Y-%m-%d") + timedelta(days)
+    vaccination_date = datetime.strptime(register_date, "%Y-%m-%d") + timedelta(letters_len(patient.name) + letters_len(patient.surname))
     vaccination_date = vaccination_date.strftime("%Y-%m-%d")
     patient_info = {
         "id": app.patient_id,
