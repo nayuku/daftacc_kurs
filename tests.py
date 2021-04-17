@@ -72,8 +72,9 @@ def test_register():
         "surname": "Kowalski"
     }
     response = client.post("/register", json=patient)
-    vaccination_date = datetime.now() + timedelta(len(patient["name"]) + len(patient["surname"]))
+    vaccination_date = datetime.now() + timedelta(len(patient["name"]) + len(patient["surname"])-1)
     vaccination_date = vaccination_date.strftime("%Y-%m-%d")
+    assert response.status_code == 201
     assert response.json() == {
         "id": 1,
         "name": "Jan",
@@ -89,7 +90,7 @@ def test_get_patient_info():
     assert response.status_code == 400
 
     # > num of patients
-    response = client.get(f"/patient/{len(app.patients)+1}")
+    response = client.get(f"/patient/{len(app.patients) + 1}")
     assert response.status_code == 404
 
     # return first patient
