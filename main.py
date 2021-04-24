@@ -1,8 +1,6 @@
 import hashlib
 
 from fastapi import FastAPI, Request, Response, status, HTTPException
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
@@ -71,17 +69,8 @@ def check_password(password: Optional[str] = None, password_hash: Optional[str] 
 @app.post("/register", status_code=201)
 def register(patient: Patient):
     register_date = datetime.now().strftime("%Y-%m-%d")
-
-    if patient.name and patient.surname:
-        days = len(patient.name) + len(patient.surname)
-    elif patient.name and not patient.surname:
-        days = len(patient.name)
-    elif not patient.name and patient.surname:
-        days = len(patient.surname)
-    elif not patient.name and not patient.surname:
-        days = 0
-
-    vaccination_date = datetime.strptime(register_date, "%Y-%m-%d") + timedelta(letters_len(patient.name) + letters_len(patient.surname))
+    vaccination_date = datetime.strptime(register_date, "%Y-%m-%d") + timedelta(
+        letters_len(patient.name) + letters_len(patient.surname))
     vaccination_date = vaccination_date.strftime("%Y-%m-%d")
     patient_info = {
         "id": app.patient_id,

@@ -72,7 +72,7 @@ def test_register():
         "surname": "Kowalski"
     }
     response = client.post("/register", json=patient)
-    vaccination_date = datetime.now() + timedelta(len(patient["name"]) + len(patient["surname"])-1)
+    vaccination_date = datetime.now() + timedelta(len(patient["name"]) + len(patient["surname"]))
     vaccination_date = vaccination_date.strftime("%Y-%m-%d")
     assert response.status_code == 201
     assert response.json() == {
