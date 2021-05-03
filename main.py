@@ -189,7 +189,6 @@ def login_session(response: Response, credentials: HTTPBasicCredentials = Depend
     session_value = str(uuid.uuid4())
     app.sessions_values.append(session_value)
     response.set_cookie(key="session_token", value=session_value)
-    return response
 
 
 @app.post("/login_token", status_code=201)
