@@ -166,6 +166,8 @@ def hello():
 security = HTTPBasic()
 app.session_tokens = []
 app.tokens = []
+app.c1 = 1
+app.c2 = 1
 
 
 def auth(login: str, password: str):
@@ -178,7 +180,9 @@ def auth(login: str, password: str):
 def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
-    session_token = str(uuid.uuid1())
+    # session_token = str(uuid.uuid1())
+    session_token = str(app.c1)
+    app.c1+=1
     app.session_tokens.append(session_token)
     if len(app.session_tokens) > 3:
         app.session_tokens.pop(0)
@@ -189,7 +193,9 @@ def login_session(response: Response, credentials: HTTPBasicCredentials = Depend
 def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
-    token = str(uuid.uuid1())
+    # token = str(uuid.uuid1())
+    token = str(app.c2)
+    app.c2 += 1
     app.tokens.append(token)
     if len(app.tokens) > 3:
         app.tokens.pop(0)
