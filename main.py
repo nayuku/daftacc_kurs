@@ -236,7 +236,7 @@ def logout_token(token: str, format: Optional[str] = None):
         return RedirectResponse(url="/logged_out", status_code=302)
     return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
-
+#
 @app.get("/logged_out")
 def logged_out(format: str = None):
     return msg_response("Logged out!", format)
