@@ -204,7 +204,7 @@ def welcome(format: str):
 
 
 @app.get("/welcome_session")
-def welcome_session(*, response: Response, session_token: str = Cookie(None), format: str = None):
+def welcome_session(session_token: str = Cookie(None), format: str = None):
     print(session_token)
     print(app.session_tokens)
     if session_token not in app.session_tokens:
@@ -213,7 +213,7 @@ def welcome_session(*, response: Response, session_token: str = Cookie(None), fo
 
 
 @app.get("/welcome_token")
-def welcome_token(*, response: Response, token: str, format: str = None):
+def welcome_token(token: str, format: str = None):
     if token not in app.tokens:
         raise HTTPException(status_code=401)
     return welcome(format)
