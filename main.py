@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from starlette.responses import PlainTextResponse
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -17,14 +18,6 @@ app.counter = 0
 app.patient_id = 1
 app.patients = []
 app.ids = []
-
-
-# app.include_router(router)
-# app.include_router(
-#     router,
-#     prefix="/router",
-#     tags=["router"],
-# )
 
 
 class HelloResp(BaseModel):
@@ -172,7 +165,7 @@ def hello():
 
 # 3.2
 security = HTTPBasic()
-app.sessions_values = []
+app.session_tokens = []
 app.tokens = []
 
 
@@ -186,9 +179,9 @@ def auth(login: str, password: str):
 def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
-    session_value = str(uuid.uuid4())
-    app.sessions_values.append(session_value)
-    response.set_cookie(key="session_token", value=session_value)
+    session_token = str(uuid.uuid4())
+    app.session_tokens.append(session_token)
+    response.set_cookie(key="session_token", value=session_token)
 
 
 @app.post("/login_token", status_code=201)
@@ -203,7 +196,7 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
 # 3.3
 def welcome(format: str):
     if format == None:
-        return "Welcome!"
+        return PlainTextResponse("Welcome!")
     if format == "json":
         return {"message": "Welcome!"}
     if format == "html":
@@ -211,14 +204,16 @@ def welcome(format: str):
 
 
 @app.get("/welcome_session")
-def welcome_session(session_value: str = Cookie(None), format: str = None):
-    if session_value not in app.sessions_values:
+def welcome_session(*, response: Response, session_token: str = Cookie(None), format: str = None):
+    print(session_token)
+    print(app.session_tokens)
+    if session_token not in app.session_tokens:
         raise HTTPException(status_code=401)
     return welcome(format)
 
 
 @app.get("/welcome_token")
-def welcome_token(token: str, format: str = None):
+def welcome_token(*, response: Response, token: str, format: str = None):
     if token not in app.tokens:
         raise HTTPException(status_code=401)
     return welcome(format)
