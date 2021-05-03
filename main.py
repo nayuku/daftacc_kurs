@@ -1,15 +1,29 @@
 import hashlib
 
-from fastapi import FastAPI, Request, Response, status, HTTPException
+from fastapi import FastAPI, Request, Response, status, HTTPException, Query, Cookie
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta
 
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from routers.router import router
+
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
 app.counter = 0
 app.patient_id = 1
 app.patients = []
 app.ids = []
+
+app.include_router(router)
+app.include_router(
+    router,
+    prefix="/router",
+    tags=["router"],
+)
 
 
 class HelloResp(BaseModel):
@@ -92,3 +106,64 @@ def get_patient_info(id: int):
     elif id > len(app.patients):
         raise HTTPException(status_code=404)
     return app.patients[id - 1]
+
+
+# 3
+@app.get("/request_query_string_discovery/")
+def read_items(u: str = Query("default"), q: List[str] = Query(None)):
+    query_items = {"q": q, "u": u}
+    return query_items
+
+
+@app.get("/static", response_class=HTMLResponse)
+def index_static():
+    return """
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML!</h1>
+        </body>
+    </html>
+    """
+
+
+@app.get("/jinja")
+def read_item(request: Request):
+    return templates.TemplateResponse("index1.html", {
+        "request": request, "my_string": "Wheeeee!", "my_list": [0, 1, 2, 3, 4, 5]})
+
+
+@app.get("/simple_path_tmpl/{sample_variable}")
+def simple_path_tmpl(sample_variable: str):
+    print(f"{sample_variable=}")
+    print(type(sample_variable))
+    return {"sample_variable": sample_variable}
+
+
+app.secret_key = "very constatn and random secret, best 64+ characters"
+app.access_tokens = []
+
+
+@app.get("/login/")
+def login(user: str, password: str, response: Response):
+    session_token = hashlib.sha256(f"{user}{password}{app.secret_key}".encode()).hexdigest()
+    app.access_tokens.append(session_token)
+    response.set_cookie(key="session_token", value=session_token)
+    return {"message": session_token}
+
+
+@app.get("/data/")
+def secured_data(*, response: Response, session_token: str = Cookie(None)):
+    if session_token not in app.access_tokens:
+        raise HTTPException(status_code=403, detail="Unauthorised")
+    else:
+        return {"message": "Secure Content"}
+
+
+# 3.1
+@app.get("/hello", response_class=HTMLResponse)
+def hello():
+    return f"""
+    <h1>Hello! Today date is {datetime.now().strftime("%Y-%m-%d")}</h1>"""
