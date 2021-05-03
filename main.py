@@ -180,8 +180,8 @@ def login_session(response: Response, credentials: HTTPBasicCredentials = Depend
         raise HTTPException(status_code=401)
     session_token = str(uuid.uuid4())
     app.session_tokens.append(session_token)
-    if len(app.tokens) > 3:
-        app.tokens.pop(0)
+    if len(app.session_tokens) > 3:
+        app.session_tokens.pop(0)
     response.set_cookie(key="session_token", value=session_token)
 
 
