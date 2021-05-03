@@ -192,9 +192,33 @@ def login_session(response: Response, credentials: HTTPBasicCredentials = Depend
 
 
 @app.post("/login_token", status_code=201)
-def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
     token = str(uuid.uuid4())
     app.tokens.append(token)
     return {"token": token}
+
+
+# 3.3
+def welcome(format: str):
+    if format == None:
+        return "Welcome!"
+    if format == "json":
+        return {"message": "Welcome!"}
+    if format == "html":
+        return HTMLResponse("<h1>Welcome!</h1>")
+
+
+@app.get("/welcome_session")
+def welcome_session(session_value: str = Cookie(None), format: str = None):
+    if session_value not in app.sessions_values:
+        raise HTTPException(status_code=401)
+    return welcome(format)
+
+
+@app.get("/welcome_token")
+def welcome_token(token: str, format: str = None):
+    if token not in app.tokens:
+        raise HTTPException(status_code=401)
+    return welcome(format)
