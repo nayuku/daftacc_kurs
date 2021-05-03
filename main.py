@@ -8,8 +8,6 @@ from datetime import datetime, timedelta
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from routers.router import router
-
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -18,12 +16,13 @@ app.patient_id = 1
 app.patients = []
 app.ids = []
 
-app.include_router(router)
-app.include_router(
-    router,
-    prefix="/router",
-    tags=["router"],
-)
+
+# app.include_router(router)
+# app.include_router(
+#     router,
+#     prefix="/router",
+#     tags=["router"],
+# )
 
 
 class HelloResp(BaseModel):
