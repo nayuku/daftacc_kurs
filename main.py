@@ -1,6 +1,8 @@
 import hashlib
+import uuid
 
-from fastapi import FastAPI, Request, Response, status, HTTPException, Query, Cookie
+from fastapi import FastAPI, Request, Response, status, HTTPException, Query, Cookie, Depends
+from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
@@ -166,3 +168,34 @@ def secured_data(*, response: Response, session_token: str = Cookie(None)):
 def hello():
     return f"""
     <h1>Hello! Today date is {datetime.now().strftime("%Y-%m-%d")}</h1>"""
+
+
+# 3.2
+security = HTTPBasic()
+app.sessions_values = []
+app.tokens = []
+
+
+def auth(login: str, password: str):
+    if login == "4dm1n" and password == "NotSoSecurePa$$":
+        return True
+    return False
+
+
+@app.post("/login_session", status_code=201)
+def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    if not auth(credentials.username, credentials.password):
+        raise HTTPException(status_code=401)
+    session_value = str(uuid.uuid4())
+    app.sessions_values.append(session_value)
+    response.set_cookie(key="session_token", value=session_value)
+    return response
+
+
+@app.post("/login_token", status_code=201)
+def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    if not auth(credentials.username, credentials.password):
+        raise HTTPException(status_code=401)
+    token = str(uuid.uuid4())
+    app.tokens.append(token)
+    return {"token": token}
