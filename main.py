@@ -7,9 +7,8 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
-from starlette.responses import PlainTextResponse
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -194,26 +193,46 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 # 3.3
-def welcome(format: str):
+def msg_response(msg: str, format: str):
     if format == None:
-        return PlainTextResponse("Welcome!")
+        return PlainTextResponse(msg)
     if format == "json":
-        return {"message": "Welcome!"}
+        return {"message": msg}
     if format == "html":
-        return HTMLResponse("<h1>Welcome!</h1>")
+        return HTMLResponse(f"<h1>{msg}</h1>")
 
 
 @app.get("/welcome_session")
 def welcome_session(session_token: str = Cookie(None), format: str = None):
-    print(session_token)
-    print(app.session_tokens)
     if session_token not in app.session_tokens:
         raise HTTPException(status_code=401)
-    return welcome(format)
+    return msg_response("Welcome!", format)
 
 
 @app.get("/welcome_token")
 def welcome_token(token: str, format: str = None):
     if token not in app.tokens:
         raise HTTPException(status_code=401)
-    return welcome(format)
+    return msg_response("Welcome!", format)
+
+
+# 3.4
+@app.delete("/logout_session")
+def logout_session(session_token: str = Cookie(None), format: str = None):
+    if session_token not in app.session_tokens:
+        raise HTTPException(status_code=401)
+    app.session_tokens.remove(session_token)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
+
+
+@app.delete("/logout_token")
+def logout_token(token: str, format: str = None):
+    if token not in app.tokens:
+        raise HTTPException(status_code=401)
+    app.session_tokens.remove(token)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
+
+
+@app.get("/logged_out")
+def logged_out(format: str = None):
+    return msg_response("Logged out!", format)
