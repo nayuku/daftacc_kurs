@@ -223,8 +223,8 @@ def logout_session(session_token: str = Cookie(None), format: str = None):
         raise HTTPException(status_code=401)
     app.session_tokens.remove(session_token)
     if format is None:
-        return RedirectResponse(url="/logged_out", status_code=303)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=303)
+        return RedirectResponse(url="/logged_out", status_code=302)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
 
 @app.delete("/logout_token")
@@ -233,11 +233,11 @@ def logout_token(token: str, format: str = None):
         raise HTTPException(status_code=401)
     app.tokens.remove(token)
     if format is None:
-        return RedirectResponse(url="/logged_out", status_code=303)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=303)
+        return RedirectResponse(url="/logged_out", status_code=302)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
 
-@app.get("/logged_out")
+@app.get("/logged_out", status_code=200)
 def logged_out(format: str = None):
     if format == 'json':
         return JSONResponse(content={"message": "Logged out!"})
