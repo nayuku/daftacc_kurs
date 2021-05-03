@@ -218,18 +218,22 @@ def welcome_token(token: str, format: str = None):
 
 # 3.4
 @app.delete("/logout_session")
-def logout_session(session_token: str = Cookie(None), format: str = None):
+def logout_session(session_token: str = Cookie(None), format: Optional[str] = None):
     if session_token not in app.session_tokens:
         raise HTTPException(status_code=401)
     app.session_tokens.remove(session_token)
+    if not format:
+        return RedirectResponse(url="/logged_out", status_code=302)
     return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
 
 @app.delete("/logout_token")
-def logout_token(token: str, format: str = None):
+def logout_token(token: str, format: Optional[str] = None):
     if token not in app.tokens:
         raise HTTPException(status_code=401)
     app.session_tokens.remove(token)
+    if not format:
+        return RedirectResponse(url="/logged_out", status_code=302)
     return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
 
