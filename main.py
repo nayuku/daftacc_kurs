@@ -179,10 +179,13 @@ def login_session(response: Response, credentials: HTTPBasicCredentials = Depend
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
     session_token = str(uuid.uuid1())
-    app.session_tokens.append(session_token)
+    if session_token not in app.session_tokens:
+        app.session_tokens.append(session_token)
     if len(app.session_tokens) > 3:
         app.session_tokens.pop(0)
+    print(app.session_tokens)
     response.set_cookie(key="session_token", value=session_token)
+    return {}
 
 
 @app.post("/login_token", status_code=201)
@@ -190,9 +193,11 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     if not auth(credentials.username, credentials.password):
         raise HTTPException(status_code=401)
     token = str(uuid.uuid1())
-    app.tokens.append(token)
+    if token not in app.tokens:
+        app.tokens.append(token)
     if len(app.tokens) > 3:
         app.tokens.pop(0)
+    print(app.tokens)
     return {"token": token}
 
 
@@ -240,7 +245,7 @@ def logout_token(token: str, format: str = None):
     return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
 
 
-@app.get("/logged_out", status_code=200)
+@app.get("/logged_out")
 def logged_out(format: str = None):
     if format == 'json':
         return JSONResponse(content={"message": "Logged out!"})
