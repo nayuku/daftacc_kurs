@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
 
-from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
@@ -194,10 +194,10 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
 
 # 3.3
 def msg_response(msg: str, format: str):
-    if format == None:
+    if format is None:
         return PlainTextResponse(msg)
     if format == "json":
-        return {"message": msg}
+        return JSONResponse({"message": msg})
     if format == "html":
         return HTMLResponse(f"<h1>{msg}</h1>")
 
