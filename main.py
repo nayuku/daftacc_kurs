@@ -195,11 +195,11 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
 # 3.3
 def msg_response(msg: str, format: str):
     if format is None:
-        return PlainTextResponse(msg)
+        return PlainTextResponse(content=msg)
     if format == "json":
-        return JSONResponse({"message": msg})
+        return JSONResponse(content={"message": msg})
     if format == "html":
-        return HTMLResponse(f"<h1>{msg}</h1>")
+        return HTMLResponse(content=f"<h1>{msg}</h1>")
 
 
 @app.get("/welcome_session")
@@ -218,25 +218,29 @@ def welcome_token(token: str, format: str = None):
 
 # 3.4
 @app.delete("/logout_session")
-def logout_session(session_token: str = Cookie(None), format: Optional[str] = None):
+def logout_session(session_token: str = Cookie(None), format: str = None):
     if session_token not in app.session_tokens:
         raise HTTPException(status_code=401)
     app.session_tokens.remove(session_token)
-    if not format:
-        return RedirectResponse(url="/logged_out", status_code=302)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
+    if format is None:
+        return RedirectResponse(url="/logged_out", status_code=303)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=303)
 
 
 @app.delete("/logout_token")
-def logout_token(token: str, format: Optional[str] = None):
+def logout_token(token: str, format: str = None):
     if token not in app.tokens:
         raise HTTPException(status_code=401)
-    app.session_tokens.remove(token)
-    if not format:
-        return RedirectResponse(url="/logged_out", status_code=302)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=302)
+    app.tokens.remove(token)
+    if format is None:
+        return RedirectResponse(url="/logged_out", status_code=303)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=303)
 
-#
-@app.get("/logged_out")
+
+@app.delete("/logged_out")
 def logged_out(format: str = None):
-    return msg_response("Logged out!", format)
+    if format == 'json':
+        return JSONResponse(content={"message": "Logged out!"})
+    elif format == 'html':
+        return HTMLResponse(content="<h1>Logged out!</h1>")
+    return PlainTextResponse(content="Logged out!")
