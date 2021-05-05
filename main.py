@@ -1,4 +1,5 @@
 import hashlib
+import sqlite3
 import uuid
 
 from fastapi import FastAPI, Request, Response, status, HTTPException, Query, Cookie, Depends
@@ -252,3 +253,36 @@ def logged_out(format: str = None):
     elif format == 'html':
         return HTMLResponse(content="<h1>Logged out!</h1>")
     return PlainTextResponse(content="Logged out!")
+
+
+# 4
+@app.on_event("startup")
+async def startup():
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    app.db_connection.close()
+
+# 4.1
+@app.get("/categories")
+async def get_categories():
+    app.db_connection.row_factory = sqlite3.Row
+    categories = app.db_connection.execute(
+        "SELECT CategoryID as id, CategoryName as name FROM Categories ORDER BY CategoryID"
+    ).fetchall()
+    return {
+        "categories": categories
+    }
+
+@app.get("/customers")
+async def get_customers():
+    app.db_connection.row_factory = sqlite3.Row
+    customers = app.db_connection.execute(
+        "SELECT CustomerID as id, ContactName as name FROM Customers ORDER BY CustomerID"
+    ).fetchall()
+    return {
+        "customers": customers
+    }
