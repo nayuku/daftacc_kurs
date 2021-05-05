@@ -314,25 +314,21 @@ async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute(f"SELECT EmployeeID id, LastName last_name, FirstName first_name, City city "
                                      f"FROM Employees ORDER BY {order} ASC LIMIT {limit} OFFSET {offset}").fetchall()
-    print(data)
     return {
         "employees": data
     }
+
+
 # 4.4
 @app.get("/products_extended")
 async def get_employees():
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute(
-        f"SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier "
-        f"FROM Products p, Categories c , Suppliers s "
-        f"WHERE p.ProductID == c.CategoryID AND p.ProductID == s.SupplierID "
-        f"ORDER BY id ").fetchall()
+        "SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier "
+        f"FROM Products p "
+        f"JOIN Categories c on p.ProductID = c.CategoryID "
+        f"JOIN Suppliers s on p.ProductID = s.SupplierID "
+        f"ORDER BY id").fetchall()
     return {
         "products_extended": data
     }
-
-
-
-
-
-
