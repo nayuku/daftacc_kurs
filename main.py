@@ -271,7 +271,7 @@ async def shutdown():
 async def get_categories():
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
-        "SELECT CategoryID as id, CategoryName as name FROM Categories ORDER BY CategoryID"
+        "SELECT CategoryID as id, CategoryName as name FROM Categories ORDER BY CategoryID;"
     ).fetchall()
     return {
         "categories": categories
@@ -281,7 +281,8 @@ async def get_categories():
 async def get_customers():
     app.db_connection.row_factory = sqlite3.Row
     customers = app.db_connection.execute(
-        "SELECT CustomerID as id, ContactName as name FROM Customers ORDER BY CustomerID"
+        "SELECT CustomerID as id, CompanyName as name,"
+        "Address||' '||PostalCode||' '||City||' '||Country AS full_address  FROM Customers order by id;"
     ).fetchall()
     return {
         "customers": customers
