@@ -271,7 +271,8 @@ async def shutdown():
 async def get_categories():
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
-        "SELECT CategoryID as id, CategoryName as name FROM Categories ORDER BY CategoryID;"
+        "SELECT CategoryID as id, CategoryName as name"
+        " FROM Categories ORDER BY CategoryID;"
     ).fetchall()
     return {
         "categories": categories
@@ -281,8 +282,20 @@ async def get_categories():
 async def get_customers():
     app.db_connection.row_factory = sqlite3.Row
     customers = app.db_connection.execute(
-        "SELECT CustomerID as id, CompanyName as name, Address||' '||PostalCode||' '||City||' '||Country AS full_address  FROM Customers order by CustomerID collate nocase asc;"
+        "SELECT CustomerID as id, CompanyName as name,"
+        "Address||' '||PostalCode||' '||City||' '||Country AS full_address"
+        " FROM Customers order by CustomerID collate nocase asc;"
     ).fetchall()
     return {
         "customers": customers
     }
+@app.get("/products/{id}")
+async def get_product_by_id(id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute(
+        "SELECT ProductID as id, ProductName as name"
+        " FROM Products WHERE ProductID = :id",
+        {'id': id}).fetchone()
+    if data is None:
+        raise HTTPException(status_code=404)
+    return data
