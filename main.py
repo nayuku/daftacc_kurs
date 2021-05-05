@@ -266,6 +266,7 @@ async def startup():
 async def shutdown():
     app.db_connection.close()
 
+
 # 4.1
 @app.get("/categories")
 async def get_categories():
@@ -278,6 +279,7 @@ async def get_categories():
         "categories": categories
     }
 
+
 @app.get("/customers")
 async def get_customers():
     app.db_connection.row_factory = sqlite3.Row
@@ -289,6 +291,8 @@ async def get_customers():
     return {
         "customers": customers
     }
+
+
 @app.get("/products/{id}")
 async def get_product_by_id(id: int):
     app.db_connection.row_factory = sqlite3.Row
@@ -298,4 +302,20 @@ async def get_product_by_id(id: int):
         {'id': id}).fetchone()
     if data is None:
         raise HTTPException(status_code=404)
+    return data
+
+
+@app.get("/employees/")
+async def get_employees(limit: int, offset: int, order: str = "id"):
+    if order not in ["id", "first_name", "last_name", "city"]:
+        raise HTTPException(status_code=400)
+    app.db_connection.row_factory = sqlite3.Row
+    print(limit, offset, order)
+    data = app.db_connection.execute(
+        "SELECT EmployeeID id, LastName last_name, FirstName first_name, City city FROM Employees "
+        "ORDER BY :order "
+        "LIMIT :limit "
+        "OFFSET :offset;",
+        {'order': order, 'limit': limit, 'offset': offset}).fetchall()
+
     return data
