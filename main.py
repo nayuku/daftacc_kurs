@@ -118,6 +118,7 @@ def index_static():
         </head>
         <body>
             <h1>Look ma! HTML!</h1>
+            <a href="http://thiszone.pl">thiszone</a>
         </body>
     </html>
     """
