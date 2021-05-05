@@ -326,9 +326,9 @@ async def get_employees():
     data = app.db_connection.execute(
         "SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier "
         f"FROM Products p "
-        f"JOIN Categories c on p.ProductID = c.CategoryID "
-        f"JOIN Suppliers s on p.ProductID = s.SupplierID "
-        f"ORDER BY id").fetchall()
+        f"JOIN Categories c on p.CategoryID = c.CategoryID "
+        f"JOIN Suppliers s on p.SupplierID = s.SupplierID "
+        f"ORDER BY id;").fetchall()
     return {
         "products_extended": data
     }
