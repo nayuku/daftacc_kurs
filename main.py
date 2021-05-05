@@ -306,11 +306,10 @@ async def get_product_by_id(id: int):
 
 
 @app.get("/employees/")
-async def get_employees(limit: int, offset: int, order: str = "id"):
+async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
     if order not in ["id", "first_name", "last_name", "city"]:
         raise HTTPException(status_code=400)
     app.db_connection.row_factory = sqlite3.Row
-    print(limit, offset, order)
     data = app.db_connection.execute(
         "SELECT EmployeeID id, LastName last_name, FirstName first_name, City city FROM Employees "
         "ORDER BY :order "
