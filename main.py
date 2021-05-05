@@ -293,6 +293,7 @@ async def get_customers():
     }
 
 
+# 4.2
 @app.get("/products/{id}")
 async def get_product_by_id(id: int):
     app.db_connection.row_factory = sqlite3.Row
@@ -305,6 +306,7 @@ async def get_product_by_id(id: int):
     return data
 
 
+# 4.3
 @app.get("/employees/")
 async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
     if order not in ["id", "first_name", "last_name", "city"]:
