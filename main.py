@@ -281,8 +281,7 @@ async def get_categories():
 async def get_customers():
     app.db_connection.row_factory = sqlite3.Row
     customers = app.db_connection.execute(
-        "SELECT CustomerID as id, CompanyName as name,"
-        "Address||' '||PostalCode||' '||City||' '||Country AS full_address  FROM Customers order by id;"
+        "SELECT CustomerID as id, CompanyName as name, Address||' '||PostalCode||' '||City||' '||Country AS full_address  FROM Customers order by CustomerID collate nocase asc;"
     ).fetchall()
     return {
         "customers": customers
