@@ -318,5 +318,5 @@ async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
         {'order': order, 'limit': limit, 'offset': offset}).fetchall()
 
     return {
-        "employess": data
+        "employees": data
     }
