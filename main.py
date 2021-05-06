@@ -350,4 +350,6 @@ async def get_prod_orders_by_id(id: int):
     ORDER BY id""", {'id': id}).fetchall()
     if not data:
         raise HTTPException(status_code=404)
-    return data
+    return {
+        "orders": data
+    }
