@@ -406,4 +406,4 @@ async def del_category(id: int):
     app.db_connection.execute("DELETE FROM Categories WHERE CategoryID = :id;", {'id': id})
     app.db_connection.commit()
 
-    return {"deleted": id}
+    return {"deleted": 1}
