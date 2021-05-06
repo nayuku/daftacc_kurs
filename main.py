@@ -313,6 +313,10 @@ async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
     if order not in ["id", "first_name", "last_name", "city"]:
         raise HTTPException(status_code=400)
     app.db_connection.row_factory = sqlite3.Row
+    # in version without sql inj ORDER BY doesn't work :/
+    # data = app.db_connection.execute("""SELECT EmployeeID id, LastName last_name, FirstName first_name, City city
+    #                                  FROM Employees ORDER BY :order ASC LIMIT :limit OFFSET :offset""",
+    #                                  {'order': order, 'limit': limit, 'offset': offset}).fetchall()
     data = app.db_connection.execute(f"SELECT EmployeeID id, LastName last_name, FirstName first_name, City city "
                                      f"FROM Employees ORDER BY {order} ASC LIMIT {limit} OFFSET {offset}").fetchall()
     return {
@@ -339,6 +343,8 @@ async def get_employees():
 @app.get("/products/{id}/orders")
 async def get_prod_orders_by_id(id: int):
     app.db_connection.row_factory = sqlite3.Row
+    # this query return always 2 place after delimiter, e.g. 2->2.00, 2.1 ->2.10
+    # PRINTF('%.2f',((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)))) total_price
     data = app.db_connection.execute("""
     SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
     ROUND(((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity))),2) total_price
@@ -353,3 +359,51 @@ async def get_prod_orders_by_id(id: int):
     return {
         "orders": data
     }
+
+
+# 4.6
+
+class Cat(BaseModel):
+    name: str
+
+
+@app.post("/categories", status_code=201)
+async def add_category(cat: Cat):
+    cursor = app.db_connection.execute("INSERT INTO Categories (CategoryName) VALUES (:cat)", {'cat': cat.name})
+    app.db_connection.commit()
+
+    last_id = cursor.lastrowid
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT CategoryID id, CategoryName name FROM Categories WHERE id = :id;",
+                                     {'id': last_id}).fetchone()
+    return data
+
+
+@app.put("/categories/{id}", status_code=201)
+async def edit_category(id: int, cat: Cat):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT * FROM Categories WHERE CategoryID = :id", {'id': id}).fetchone()
+    if data is None:
+        raise HTTPException(status_code=404)
+
+    app.db_connection.execute("UPDATE Categories SET CategoryName = :cat WHERE CategoryID = :id;",
+                              {'cat': cat.name, "id": id})
+    app.db_connection.commit()
+
+    data = app.db_connection.execute("SELECT CategoryID id, CategoryName name FROM Categories WHERE CategoryID = :id",
+                                     {'id': id}).fetchone()
+
+    return data
+
+
+@app.delete("/categories/{id}")
+async def del_category(id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT * FROM Categories WHERE CategoryID = :id", {'id': id}).fetchone()
+    if data is None:
+        raise HTTPException(status_code=404)
+
+    app.db_connection.execute("DELETE FROM Categories WHERE CategoryID = :id;", {'id': id})
+    app.db_connection.commit()
+
+    return {"deleted": id}
