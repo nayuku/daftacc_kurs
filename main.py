@@ -343,7 +343,7 @@ async def get_employees():
 @app.get("/products/{id}/orders")
 async def get_prod_orders_by_id(id: int):
     app.db_connection.row_factory = sqlite3.Row
-    # this query return always 2 place after delimiter, e.g. 2->2.00, 2.1 ->2.10
+    # this query returns always 2 place after delimiter, e.g. 2->2.00, 2.1 ->2.10
     # PRINTF('%.2f',((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)))) total_price
     data = app.db_connection.execute("""
     SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
@@ -378,7 +378,7 @@ async def add_category(cat: Cat):
                                      {'id': last_id}).fetchone()
     return data
 
-#
+
 @app.put("/categories/{id}")
 async def edit_category(id: int, cat: Cat):
     app.db_connection.row_factory = sqlite3.Row
