@@ -324,12 +324,12 @@ async def get_employees(limit: int = -1, offset: int = 0, order: str = "id"):
 @app.get("/products_extended")
 async def get_employees():
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute(
-        "SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier "
-        f"FROM Products p "
-        f"JOIN Categories c on p.CategoryID = c.CategoryID "
-        f"JOIN Suppliers s on p.SupplierID = s.SupplierID "
-        f"ORDER BY id;").fetchall()
+    data = app.db_connection.execute("""
+        SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier 
+        FROM Products p 
+        JOIN Categories c on p.CategoryID = c.CategoryID 
+        JOIN Suppliers s on p.SupplierID = s.SupplierID 
+        ORDER BY id;""").fetchall()
     return {
         "products_extended": data
     }
@@ -341,7 +341,7 @@ async def get_prod_orders_by_id(id: int):
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute("""
     SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
-    PRINTF('%.2f',((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)))) total_price
+    ROUND(((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity))),2) total_price
     FROM Orders o 
     JOIN Customers c on o.CustomerID = c.CustomerID
     JOIN 'Order Details' od on o.OrderID = od.OrderID
