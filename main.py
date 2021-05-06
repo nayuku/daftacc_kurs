@@ -379,7 +379,7 @@ async def add_category(cat: Cat):
     return data
 
 
-@app.put("/categories/{id}", status_code=201)
+@app.put("/categories/{id}")
 async def edit_category(id: int, cat: Cat):
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute("SELECT * FROM Categories WHERE CategoryID = :id", {'id': id}).fetchone()
