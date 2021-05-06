@@ -333,3 +333,19 @@ async def get_employees():
     return {
         "products_extended": data
     }
+
+
+# 4.5
+@app.get("/products/{id}/orders")
+async def get_prod_orders_by_id(id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("""
+    SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
+    PRINTF('%.2f',((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)))) total_price
+    FROM Orders o 
+    JOIN Customers c on o.CustomerID = c.CustomerID
+    JOIN 'Order Details' od on o.OrderID = od.OrderID
+    WHERE id = :id""", {'id': id}).fetchall()
+    if data is None:
+        raise HTTPException(status_code=404)
+    return data
