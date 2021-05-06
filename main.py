@@ -378,7 +378,7 @@ async def add_category(cat: Cat):
                                      {'id': last_id}).fetchone()
     return data
 
-
+#
 @app.put("/categories/{id}")
 async def edit_category(id: int, cat: Cat):
     app.db_connection.row_factory = sqlite3.Row
