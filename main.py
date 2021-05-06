@@ -346,6 +346,6 @@ async def get_prod_orders_by_id(id: int):
     JOIN Customers c on o.CustomerID = c.CustomerID
     JOIN 'Order Details' od on o.OrderID = od.OrderID
     WHERE id = :id""", {'id': id}).fetchall()
-    if data is None:
+    if not data:
         raise HTTPException(status_code=404)
     return data
