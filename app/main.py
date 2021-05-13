@@ -1,3 +1,4 @@
+'''
 import hashlib
 import sqlite3
 import uuid
@@ -10,8 +11,15 @@ from datetime import datetime, timedelta
 
 from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+'''
+
+from fastapi import FastAPI
+from .views import router as northwind_api_router
 
 app = FastAPI()
+app.include_router(northwind_api_router, tags=["northwind"])
+
+'''
 templates = Jinja2Templates(directory="templates")
 
 app.counter = 0
@@ -259,7 +267,7 @@ def logged_out(format: str = None):
 # 4
 @app.on_event("startup")
 async def startup():
-    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection = sqlite3.connect("../northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
 
 
@@ -406,3 +414,4 @@ async def del_category(id: int):
     app.db_connection.execute("DELETE FROM Categories WHERE CategoryID = :id;", {'id': id})
     app.db_connection.commit()
     return {"deleted": 1}
+'''
