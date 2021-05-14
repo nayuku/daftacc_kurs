@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, PositiveInt, constr
 
@@ -19,6 +19,7 @@ class Supplier(BaseModel):
     class Config:
         orm_mode = True
 
+
 class SupplierAll(BaseModel):
     SupplierID: PositiveInt
     CompanyName: Optional[constr(max_length=40)] = None
@@ -35,4 +36,3 @@ class SupplierAll(BaseModel):
 
     class Config:
         orm_mode = True
-
