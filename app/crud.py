@@ -31,3 +31,9 @@ def get_suppliers_products(db: Session, supplier_id: int):
         .join(models.Category, models.Product.CategoryID == models.Category.CategoryID) \
         .filter(models.Product.SupplierID == supplier_id) \
         .order_by(models.Product.ProductID.desc()).all()
+
+
+def add_supplier(db, supplier: models.Supplier):
+    db.add(supplier)
+    db.commit()
+    pass
