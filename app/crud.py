@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from . import models
+from . import models, schemas
 
 
 def get_shippers(db: Session):
@@ -37,3 +37,11 @@ def add_supplier(db, supplier: models.Supplier):
     db.add(supplier)
     db.commit()
     pass
+
+
+def modify_suppliers(db, supplier_id, supplier: schemas.SupplierAll):
+    mod_supplier = {col: val for col, val in dict(supplier).items() if val is not None}
+    if mod_supplier:
+        db.query(models.Supplier).filter(models.Supplier.SupplierID == supplier_id)\
+            .update(values=mod_supplier)
+        db.commit()

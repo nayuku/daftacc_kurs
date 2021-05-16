@@ -58,7 +58,7 @@ async def get_suppliers_products(supplier_id: PositiveInt, db: Session = Depends
 
 # 5.3
 @router.post("/suppliers", response_model=schemas.SupplierAll, status_code=201)
-async def add_supplier(add_supplier: schemas.AddSupplier, db: Session = Depends(get_db)):
+async def add_supplier(add_supplier: schemas.SupplierAll, db: Session = Depends(get_db)):
     supplier = models.Supplier()
     supplier.CompanyName = add_supplier.CompanyName
     supplier.ContactName = add_supplier.ContactName
@@ -70,9 +70,17 @@ async def add_supplier(add_supplier: schemas.AddSupplier, db: Session = Depends(
     supplier.Phone = add_supplier.Phone
     supplier.Fax = add_supplier.Fax
     supplier.HomePage = add_supplier.HomePage
+
     crud.add_supplier(db, supplier)
     return crud.get_supplier(db, supplier.SupplierID)
-    
 
-        
 
+# 5.4
+@router.put("/suppliers/{id}", response_model=schemas.SupplierAll)
+async def modify_supplier(id: int, supplier: schemas.SupplierAll, db: Session = Depends(get_db)):
+    db_supplier = crud.get_supplier(db, id)
+    if db_supplier is None:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+
+    crud.modify_suppliers(db, id, supplier)
+    return crud.get_supplier(db, id)
