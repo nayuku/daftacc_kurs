@@ -48,7 +48,6 @@ def modify_suppliers(db: Session, supplier_id, supplier: schemas.SupplierAll):
         pass
 
 
-def delete_suppliers(db: Session, id: int):
-    db.query(models.Supplier).filter(models.Supplier == id).delete()
+def delete_supplier(db: Session, id: int):
+    db.query(models.Supplier).filter(models.Supplier.SupplierID == id).delete()
     db.commit()
-    pass

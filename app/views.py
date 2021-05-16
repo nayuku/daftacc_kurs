@@ -92,6 +92,4 @@ async def modify_supplier(id: int, db: Session = Depends(get_db)):
     db_supplier = crud.get_supplier(db, id)
     if db_supplier is None:
         raise HTTPException(status_code=404)
-
-    crud.delete_suppliers(db, id)
-    return
+    crud.delete_supplier(db, id)
