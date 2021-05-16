@@ -84,3 +84,14 @@ async def modify_supplier(id: int, supplier: schemas.SupplierAll, db: Session = 
 
     crud.modify_suppliers(db, id, supplier)
     return crud.get_supplier(db, id)
+
+
+# 5.5
+@router.delete("/suppliers/{id}", status_code=204)
+async def modify_supplier(id: int, db: Session = Depends(get_db)):
+    db_supplier = crud.get_supplier(db, id)
+    if db_supplier is None:
+        raise HTTPException(status_code=404)
+
+    crud.delete_suppliers(db, id)
+    return

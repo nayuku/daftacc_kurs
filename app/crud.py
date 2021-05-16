@@ -39,9 +39,16 @@ def add_supplier(db, supplier: models.Supplier):
     pass
 
 
-def modify_suppliers(db, supplier_id, supplier: schemas.SupplierAll):
+def modify_suppliers(db: Session, supplier_id, supplier: schemas.SupplierAll):
     mod_supplier = {col: val for col, val in dict(supplier).items() if val is not None}
     if mod_supplier:
         db.query(models.Supplier).filter(models.Supplier.SupplierID == supplier_id)\
             .update(values=mod_supplier)
         db.commit()
+        pass
+
+
+def delete_suppliers(db: Session, id: int):
+    db.query(models.Supplier).filter(models.Supplier == id).delete()
+    db.commit()
+    pass
